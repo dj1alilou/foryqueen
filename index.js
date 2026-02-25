@@ -567,7 +567,7 @@ function addToCart(productId, selectedColor = null, sizeItem = null) {
     sizeItem,
   );
 
-  const product = allProducts.find((p) => p.id == productId);
+  const product = allProducts.find((p) => String(p.id) === String(productId));
   if (!product) {
     console.error("Product not found:", productId);
     showNotification("Produit non trouvé");
@@ -962,6 +962,7 @@ function renderProducts(category, page = 1) {
 
     const productCard = document.createElement("div");
     productCard.className = "product-card";
+    productCard.dataset.productId = product.id;
 
     productCard.innerHTML = `
             <div class="relative">
@@ -973,7 +974,7 @@ function renderProducts(category, page = 1) {
                                 alt="${product.title}" 
                                 class="product-image"
                                 loading="lazy"
-                                onclick="showProductImage('${product.id}')"
+                                data-product-id="${product.id}"
                                 style="cursor: pointer;"
                                 onerror="this.onerror=null; this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjIwMCIgaGVpZ2h0PSIyMDAiIGZpbGw9IiNGMEYwRjAiLz48cGF0aCBkPSJNNTAgNzVMMTAwIDEyNUwxNTAgNzUiIHN0cm9rZT0iI0YwNTc2QyIgc3Ryb2tlLXdpZHRoPSIyIi8+PGNpcmNsZSBjeD0iMTAwIiBjeT0iNzUiIHI9IjEwIiBmaWxsPSIjRjA1NzZDIi8+PGNpcmNsZSBjeD0iNTAiIGN5PSIxMjUiIHI9IjEwIiBmaWxsPSIjRjA1NzZDIi8+PGNpcmNsZSBjeD0iMTUwIiBjeT0iMTI1IiByPSIxMCIgZmlsbD0iI0YwNTc2QyIvPjwvc3ZnPg==';\">`
                         : `<div class="fallback-image">
@@ -991,13 +992,13 @@ function renderProducts(category, page = 1) {
                 <div class="product-price">${formatPrice(product.price)} DA</div>
                 
                 <div class="product-actions">
-                    <button onclick="openOrderModal('${product.id}')" 
+                    <button data-action="buy" data-product-id="${product.id}" 
                             class="action-btn buy"
                             ${!isProductAvailable ? "disabled" : ""}>
                         <i class="fas fa-shopping-bag"></i>
                         ${!isProductAvailable ? "Non disponible" : "Commander"}
                     </button>
-                    <button onclick="addToCart('${product.id}')" 
+                    <button data-action="cart" data-product-id="${product.id}" 
                             class="action-btn cart"
                             ${!isProductAvailable ? "disabled" : ""}>
                         <i class="fas fa-cart-plus"></i>
@@ -1008,6 +1009,42 @@ function renderProducts(category, page = 1) {
         `;
 
     container.appendChild(productCard);
+  });
+
+  // Add event delegation for product cards
+  container.addEventListener("click", function (e) {
+    // Handle clicks on product card (entire card)
+    const card = e.target.closest(".product-card");
+    if (card && !e.target.closest("button")) {
+      const productId = card.dataset.productId;
+      if (productId) {
+        showProductImage(productId);
+      }
+      return;
+    }
+
+    // Handle clicks on product image
+    const img = e.target.closest(".product-image");
+    if (img) {
+      const productId = img.dataset.productId;
+      if (productId) {
+        showProductImage(productId);
+      }
+      return;
+    }
+
+    // Handle clicks on action buttons
+    const button = e.target.closest("[data-action]");
+    if (button) {
+      const productId = button.dataset.productId;
+      const action = button.dataset.action;
+
+      if (action === "buy") {
+        openOrderModal(productId);
+      } else if (action === "cart") {
+        addToCart(productId);
+      }
+    }
   });
 
   // Render pagination controls
@@ -1094,11 +1131,20 @@ function changePage(category, page) {
 
 // Quick Order Modal
 async function openOrderModal(productId) {
-  const product = allProducts.find((p) => p.id == productId);
+  const product = allProducts.find((p) => String(p.id) === String(productId));
   if (!product) {
+    console.log("Product not found, productId:", productId);
     alert("Produit non trouvé");
     return;
   }
+
+  console.log(
+    "Product found:",
+    product.id,
+    product.title,
+    "stock:",
+    product.stock,
+  );
 
   // Check stock for products with sizes
   const hasSizes =
@@ -1111,9 +1157,12 @@ async function openOrderModal(productId) {
       alert("Désolé, ce produit n'est pas disponible pour le moment.");
       return;
     }
-  } else if (product.stock <= 0) {
-    alert("Désolé, ce produit n'est pas disponible pour le moment.");
-    return;
+  } else {
+    const stock = parseInt(product.stock) || 0;
+    if (stock <= 0) {
+      alert("Désolé, ce produit n'est pas disponible pour le moment.");
+      return;
+    }
   }
 
   currentProduct = product;
@@ -1133,38 +1182,46 @@ async function openOrderModal(productId) {
   modalName.textContent = product.title;
 
   // Handle size display in order modal
-  if (hasSizes) {
+  if (hasSizes && modalSizeDisplay) {
     modalSizeDisplay.classList.remove("hidden");
-    modalSelectedSize.textContent = selectedSize || "(اختر الحجم)";
+    if (modalSelectedSize) {
+      modalSelectedSize.textContent = selectedSize || "(اختر الحجم)";
+    }
 
     // Show and populate size dropdown
-    sizeSelectionOrder.classList.remove("hidden");
-    customerSize.required = true;
+    if (sizeSelectionOrder) {
+      sizeSelectionOrder.classList.remove("hidden");
+    }
+    if (customerSize) {
+      customerSize.required = true;
 
-    // Populate sizes from product (only available sizes)
-    customerSize.innerHTML = '<option value="">اختر الحجم</option>';
-    product.sizes.forEach((sizeItem) => {
-      const sizeName = typeof sizeItem === "string" ? sizeItem : sizeItem.size;
-      const sizeStock = typeof sizeItem === "object" ? sizeItem.stock : 999;
-      const isSoldOut = sizeStock <= 0;
+      // Populate sizes from product (only available sizes)
+      customerSize.innerHTML = '<option value="">اختر الحجم</option>';
+      product.sizes.forEach((sizeItem) => {
+        const sizeName =
+          typeof sizeItem === "string" ? sizeItem : sizeItem.size;
+        const sizeStock = typeof sizeItem === "object" ? sizeItem.stock : 999;
+        const isSoldOut = sizeStock <= 0;
 
-      if (!isSoldOut) {
-        const option = document.createElement("option");
-        option.value = sizeName;
-        option.textContent = sizeName;
-        customerSize.appendChild(option);
-      }
-    });
-
-    // Set selected size if already selected
-    if (selectedSize) {
-      customerSize.value = selectedSize;
+        if (!isSoldOut) {
+          const option = document.createElement("option");
+          option.value = sizeName;
+          option.textContent = sizeName;
+          customerSize.appendChild(option);
+        }
+      });
     }
   } else {
-    modalSizeDisplay.classList.add("hidden");
-    sizeSelectionOrder.classList.add("hidden");
-    customerSize.required = false;
-    customerSize.value = "";
+    if (modalSizeDisplay) {
+      modalSizeDisplay.classList.add("hidden");
+    }
+    if (sizeSelectionOrder) {
+      sizeSelectionOrder.classList.add("hidden");
+    }
+    if (customerSize) {
+      customerSize.required = false;
+      customerSize.value = "";
+    }
   }
 
   await updateOrderModalDeliveryPrice();
@@ -1235,8 +1292,14 @@ async function updateOrderModalDeliveryPrice() {
 
 // Product Details Modal
 function showProductImage(productId) {
-  const product = allProducts.find((p) => p.id == productId);
-  if (!product) return;
+  const product = allProducts.find((p) => String(p.id) === String(productId));
+  if (!product) {
+    console.log(
+      "Product not found for showProductImage, productId:",
+      productId,
+    );
+    return;
+  }
 
   currentProduct = product;
   selectedSize = null; // Reset size selection
