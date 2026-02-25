@@ -5,7 +5,7 @@ const https = require("https");
 const http = require("http");
 
 // Configuration - Change this to your server URL
-const SERVER_URL = process.env.SERVER_URL || "https://windy-luxury.vercel.app";
+const SERVER_URL = process.env.SERVER_URL || "https://foryqueen.vercel.app";
 
 function pingServer() {
   const url = new URL("/ping", SERVER_URL);
