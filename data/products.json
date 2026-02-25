@@ -1,0 +1,18 @@
+{
+  "products": [],
+  "categories": [
+    { "id": "1", "name": "Parure", "icon": "fas fa-layer-group" },
+    { "id": "2", "name": "Bracelet", "icon": "fas fa-band-aid" },
+    { "id": "3", "name": "Bague", "icon": "fas fa-ring" },
+    { "id": "4", "name": "Boucles", "icon": "fas fa-gem" },
+    { "id": "5", "name": "Montre", "icon": "fas fa-clock" },
+    { "id": "6", "name": "Collier", "icon": "fas fa-necklace" }
+  ],
+  "settings": {
+    "storeName": "ForyQueen",
+    "storeDescription": "Bijoux de Luxe pour Femme",
+    "currency": "DZD",
+    "whatsappNumber": "",
+    "deliveryFee": 400
+  }
+}
