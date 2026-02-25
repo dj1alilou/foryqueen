@@ -129,7 +129,7 @@ function handleLogin(e) {
   const password = document.getElementById("password").value;
 
   // Simple validation (in production, use proper authentication)
-  if (username === "admin" && password === "windy123") {
+  if (username === "admin" && password === "foryqueen123") {
     localStorage.setItem("adminAuth", "true");
     showDashboard();
     loadAllData();

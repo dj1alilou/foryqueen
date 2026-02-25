@@ -1,4 +1,4 @@
-// windy.luxury - JavaScript pour le site e-commerce en français avec IndexedDB
+// foryqueen - JavaScript pour le site e-commerce en français avec IndexedDB
 const CONFIG = {
   API_BASE:
     window.API_BASE ||
@@ -81,7 +81,7 @@ let currentProduct = null;
 // Initialize IndexedDB for cart storage
 async function initIndexedDB() {
   return new Promise((resolve, reject) => {
-    const request = indexedDB.open("windyluxuryDB", 2);
+    const request = indexedDB.open("foryqueenDB", 2);
 
     request.onerror = (event) => {
       console.error("IndexedDB error:", event.target.error);
