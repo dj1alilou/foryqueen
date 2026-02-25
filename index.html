@@ -537,6 +537,44 @@
         transform: translateY(0);
       }
 
+      /* Product Details Modal Styles */
+      .product-details-image {
+        width: 100%;
+        height: auto;
+        max-height: 500px;
+        object-fit: contain;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      }
+
+      .product-details-info {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+      }
+
+      .product-details-title {
+        font-family: "El Messiri", cursive;
+        font-size: 28px;
+        font-weight: 600;
+        color: var(--text-gold);
+        line-height: 1.2;
+      }
+
+      .product-details-price {
+        font-family: "Montserrat", sans-serif;
+        font-size: 28px;
+        font-weight: 700;
+        color: var(--text-gold);
+      }
+
+      .product-details-description {
+        font-family: "Montserrat", sans-serif;
+        color: #ccc;
+        line-height: 1.6;
+        font-size: 16px;
+      }
+
       .modal-content::before {
         content: "";
         position: absolute;
@@ -1650,6 +1688,78 @@
             <i class="fas fa-gem ml-3"></i>تأكيد الطلب الفاخر
           </button>
         </form>
+      </div>
+    </div>
+
+    <!-- Product Details Modal -->
+    <div id="productDetailsModal" class="modal-overlay">
+      <div class="modal-content" style="max-width: 900px">
+        <div class="flex justify-between items-center mb-6">
+          <h3 class="text-lg font-bold text-gray-800">Détails du Produit</h3>
+          <button
+            type="button"
+            onclick="closeProductDetailsModal()"
+            class="p-1"
+            aria-label="Fermer"
+            title="Fermer"
+          >
+            <i class="fas fa-times text-gray-600"></i>
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <!-- Product Image - Big display -->
+          <div class="flex flex-col items-center">
+            <img
+              id="productDetailsImage"
+              src=""
+              alt="Product Image"
+              class="product-details-image"
+              onerror="
+                this.src =
+                  'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjIwMCIgaGVpZ2h0PSIyMDAiIGZpbGw9IiNGMEYwRjAiLz48cGF0aCBkPSJNNTAgNzVMMTAwIDEyNUwxNTAgNzUiIHN0cm9rZT0iI0YwNTc2QyIgc3Ryb2tlLXdpZHRoPSIyIi8+PGNpcmNsZSBjeD0iMTAwIiBjeT0iNzUiIHI9IjEwIiBmaWxsPSIjRjA1NzZDIi8+PGNpcmNsZSBjeD0iNTAiIGN5PSIxMjUiIHI9IjEwIiBmaWxsPSIjRjA1NzZDIi8+PGNpcmNsZSBjeD0iMTUwIiBjeT0iMTI1IiByPSIxMCIgZmlsbD0iI0YwNTc2QyIvPjwvc3ZnPg=='
+              "
+            />
+            <!-- Image Gallery Thumbnails -->
+            <div
+              id="imageGallery"
+              class="hidden mt-4 flex gap-2 flex-wrap justify-center"
+            ></div>
+          </div>
+
+          <!-- Product Information -->
+          <div class="product-details-info">
+            <h1 id="productDetailsTitle" class="product-details-title">
+              Chargement...
+            </h1>
+
+            <div id="productDetailsPrice" class="product-details-price">
+              0 DA
+            </div>
+
+            <div class="text-sm text-gray-600 mb-2">
+              Catégorie:
+              <span id="productDetailsCategory" class="font-semibold"></span>
+            </div>
+
+            <p
+              id="productDetailsDescription"
+              class="product-details-description"
+            ></p>
+
+            <div class="mt-6">
+              <button
+                id="addToCartFromDetails"
+                onclick="addToCartFromDetails()"
+                class="action-btn cart"
+                style="width: 100%; padding: 14px"
+              >
+                <i class="fas fa-cart-plus"></i>
+                Ajouter au Panier
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
